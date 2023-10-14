@@ -1,43 +1,47 @@
-// Récupération du formulaire et des éléments nécessaires
-const donForm = document.getElementById('donForm');
-const montantInput = document.getElementById('montant');
-const donsList = document.getElementById('donsList');
-const totalDonsElement = document.getElementById('totalDons');
+document.addEventListener('DOMContentLoaded', () => {
+    const donForm = document.getElementById('donForm');
+    const montantInput = document.getElementById('montant');
+    const donsList = document.getElementById('donsList');
+    const totalDonsElement = document.getElementById('totalDons');
+    
+    donForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const montant = parseFloat(montantInput.value);
+        if (!isNaN(montant)) {
+            // Effectuer une requête AJAX au serveur pour ajouter le don
+            fetch('/ajouter-don', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ montant: montant })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mettre à jour l'affichage des dons
+                mettreAJourAffichageDons();
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'ajout du don', error);
+            });
+        }
+    });
 
-// Chargement des dons depuis le stockage local
-let dons = JSON.parse(localStorage.getItem('dons')) || [];
-
-// Fonction pour mettre à jour l'affichage des dons
-function mettreAJourAffichageDons() {
-    donsList.innerHTML = `<p>Montants des dons précédents : ${dons.join(', ')} €</p>`;
-
-    // Calculer et afficher le total des dons
-    const totalDons = dons.reduce((total, don) => total + don, 0);
-    totalDonsElement.textContent = `Total des dons : ${totalDons} €`;
-
-    // Sauvegarde des dons dans le stockage local
-    localStorage.setItem('dons', JSON.stringify(dons));
-}
-
-// Gestionnaire d'événement lorsque le formulaire est soumis
-donForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-
-    // Récupérer le montant du don depuis le champ d'entrée
-    const montant = parseFloat(montantInput.value);
-
-    if (!isNaN(montant)) {
-        // Ajouter le montant au tableau des dons
-        dons.push(montant);
-
-        // Mettre à jour l'affichage des dons
-        mettreAJourAffichageDons();
-
-        // Effacer le champ d'entrée
-        montantInput.value = '';
+    function mettreAJourAffichageDons() {
+        // Effectuer une requête AJAX au serveur pour récupérer les dons
+        fetch('/recuperer-dons')
+        .then(response => response.json())
+        .then(dons => {
+            donsList.innerHTML = `<p>Montants des dons précédents : ${dons.join(', ')} €</p>`;
+            const totalDons = dons.reduce((total, don) => total + don, 0);
+            totalDonsElement.textContent = `Total des dons : ${totalDons} €`;
+        })
+        .catch(error => {
+            console.error('Erreur lors de la récupération des dons', error);
+        });
     }
+    
+    // Appel initial pour afficher les dons au chargement de la page
+    mettreAJourAffichageDons();
 });
-
-// Appel initial pour afficher les dons au chargement de la page
-mettreAJourAffichageDons();
 
