@@ -1,5 +1,6 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc, onSnapshot } from 'firebase/firestore';
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -13,12 +14,11 @@ const firebaseConfig = {
   appId: "1:835856342517:web:99d8d62478e73e8013d4bc"
 };
 
-// Initialisez Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialisation de Firebase
+const app = initializeApp(firebaseConfig);
 
 // Initialisez la base de données Firestore
-const db = firebase.firestore();
-
+const db = getFirestore(app);
 
 document.addEventListener('DOMContentLoaded', () => {
     const donForm = document.getElementById('donForm');
